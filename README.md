@@ -3,6 +3,7 @@
 This provides an open street map file server inside Docker containers.
 
 ## Setup
+You'll need [Docker](https://www.docker.com/) and [Docker compose](https://docs.docker.com/compose/) installed.
 
 ### Create a docker volume
 This will be used to be used in storing data by the Postgres database
@@ -68,6 +69,9 @@ Remove the database by running
 3. Create a new docker volume for the database as in the `Create a Docker Volume` section.
 4. Follow the steps under `Populate the Database` above - i.e. set environment variables to import, and then run the import.
 5. Start the server again as explained above.
+
+### User Interface
+This system provides a tile service - to view a map in a browser you'll need a front end web page which requests the tiles and displays them correctly. You can use [Leaflet](http://leafletjs.com/) to do this. Inside the folder `example-front-end` you'll see an example of such a page. You'll need to edit `index.js` to make `TILE_SERVER_URL` point to the tile server which you've just set up.
 
 ### Customising data import
 You may with to customise the parameters which are passed to `osm2pgsql` which is the program which imports the data into the database. Changing these can vary the speed of the import quite significantly. In particular, giving it more RAM helps. You can edit the `docker-compose-importer.yml` file to change the `osm2pgsql` command. The `--cache` argument is how many MB of RAM can be used for the import. [Here's more information on import optimisation](https://wiki.openstreetmap.org/wiki/Osm2pgsql#Optimization)
