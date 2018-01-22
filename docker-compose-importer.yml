@@ -1,0 +1,25 @@
+version: '3.2'
+services:
+  osm-db:
+    image: chatelao/docker-postgres-osm
+    environment:
+      OSM_USER:
+      OSM_DB:
+    volumes:
+      - osm_postgres_database:/var/lib/postgresql/data
+
+  data-importer:
+    image: openfirmware/osm2pgsql
+    depends_on:
+      - osm-db
+    volumes:
+      - type: bind
+        source: ${LOCAL_IMPORT_DIRECTORY}
+        target: /osm
+
+    entrypoint: ""
+    command: osm2pgsql --create --slim --cache 1000 --database ${OSM_DB} --username ${OSM_USER} --host osm-db --port 5432 /osm/${IMPORT_FILENAME}
+
+volumes:
+  osm_postgres_database:
+    external: true
