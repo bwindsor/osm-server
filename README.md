@@ -39,7 +39,7 @@ On Windows, replace the word `export` with `SET`.
 #### Import data
 Once those environment variables are set, this will import your data:
 
-`docker-compose -f docker-compose-importer.yml up`
+`docker-compose -f docker-compose-importer.yml run --rm data-importer`
 
 This seems to fail the first time, and you can solve it by restarting the tile server/database by running `docker-compose stop` and then `docker-compose start`.
 
