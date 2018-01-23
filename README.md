@@ -43,7 +43,7 @@ Once those environment variables are set, this will import your data:
 
 This seems to fail the first time, and you can solve it by restarting the tile server/database by running `docker-compose stop` and then `docker-compose start`.
 
-The import may also fail if there is insufficient RAM for the import. See the `Customising Data Import` and `Hardware Requirements` sections further down.
+The import may also fail if there is insufficient RAM for the import. See the [Customising Data Import](#customising-data-import) and [Hardware Requirements](#hardware-requirements) sections.
 
 **This step can take a very long time! Typically 8 hours for the UK, and few days for the USA.**
 
@@ -61,8 +61,8 @@ You can restart the tile server at any point with these commands. Stopping maint
 
 ### Updating the tile server
 1. Make sure the server is running.
-2. Run the import command under the `Import data` section above. Note this will clear the  database before repopulating it. If you want to keep the old database then you'll need to backup the `osmserver_osm_postgres_database` volume. [Here's an example of how to do that](https://loomchild.net/2017/03/26/backup-restore-docker-named-volumes/).
-3. Restart the tile server as in the `Restart the tile server` section above.
+2. Set environment variables and run the import command under the [Populate the database](#populate-the-database) section. Note this will clear the  database before repopulating it. If you want to keep the old database then you'll need to backup the `osmserver_osm_postgres_database` volume. [Here's an example of how to do that](https://loomchild.net/2017/03/26/backup-restore-docker-named-volumes/).
+3. Restart the tile server as in the [Restart the tile server](#restart-the-tile-server) section.
 
 
 ### Destroy the tile server
