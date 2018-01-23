@@ -8,13 +8,21 @@ services:
     volumes:
       - osm_postgres_database:/var/lib/postgresql/data
 
+    networks:
+      - osm_network
+
   tile-server:
     image: smartroadsense/osm-tiles
     depends_on:
       - osm-db
     ports:
       - 80:8000
+    networks:
+      - osm_network
+
+networks:
+  osm_network:
+    external: true
 
 volumes:
   osm_postgres_database:
-    external: true
