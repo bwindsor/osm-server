@@ -12,7 +12,8 @@ services:
       - osm_network
 
   tile-server:
-    image: smartroadsense/osm-tiles
+    build: ./tile-server-container
+    image: bwindsor/osm-tiles
     depends_on:
       - osm-db
     ports:

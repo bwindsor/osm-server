@@ -15,9 +15,9 @@ You must call it this as the `docker-compose` files will later look for a networ
 ### Initialise the tile server
 You can initialise the tile server with
 
-`docker-compose up -d`
+`docker-compose up --build -d`
 
-This will start two containers - a Postgres database and a renderer/web server. the `-d` detaches from the containers so that they are left running in the background and you still have your terminal.
+This will start two containers - a Postgres database and a renderer/web server. the `-d` detaches from the containers so that they are left running in the background and you still have your terminal. The `--build` ensures that the tile server container is built with the latest version of the code.
 
 ### Get some map data
 Download a PBF file of OSM data from somewhere like [Geofabrik](http://download.geofabrik.de/).

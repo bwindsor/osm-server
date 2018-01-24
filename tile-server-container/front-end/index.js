@@ -1,6 +1,6 @@
 var main = function() {
 
-    var TILE_SERVER_URL = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var TILE_SERVER_URL = 'osm-tiles/{z}/{x}/{y}.png';
 
     var createMap = function() {
         let container = document.createElement("div")
@@ -15,7 +15,7 @@ var main = function() {
         )
         map.addLayer(L.tileLayer(TILE_SERVER_URL,
             {
-                minZoom: 8,
+                minZoom: 0,
                 maxZoom: 20,
                 attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
             }
