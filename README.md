@@ -13,35 +13,35 @@ This will be used to allow the docker containers to communicate with each other
 You must call it this as the `docker-compose` files will later look for a network with this name.
 
 ### Initialise the tile server
-You can initialise the tile server with
+You can initialise the tile server by running the script
 
-`docker-compose up --build -d`
+```
+./initialise_tile_server    # Linux
+initialise_tile_server.bat  # Linux type shell on Windows
+```
 
-This will start two containers - a Postgres database and a renderer/web server. the `-d` detaches from the containers so that they are left running in the background and you still have your terminal. The `--build` ensures that the tile server container is built with the latest version of the code.
+This will start two containers - a Postgres database and a renderer/web server. It takes about 30s to run because it waits for the containers to be up and then restarts them.
 
 ### Get some map data
 Download a PBF file of OSM data from somewhere like [Geofabrik](http://download.geofabrik.de/).
 If you'd like a set of these merged, you can do this using the [OSM PBF merger](https://github.com/bwindsor/osm-pbf-merger) container.
 
 ### Populate the database
-#### Set Environment variables
+#### 1. Set Environment variables
 These two variables need setting
 ```
-export LOCAL_IMPORT_DIRECTORY=/c/Users/myusername/osm-server
-export IMPORT_FILENAME=rhode-island-latest.osm.pbf
+export IMPORT_FROM=/c/Users/myusername/osm-server
+export IMPORT_FILE=rhode-island-latest.osm.pbf
 ```
-`LOCAL_IMPORT_DIRECTORY` is the directory name on your computer. If you're using `docker-machine` on Windows, this is the directory location mounted inside the machine.
+* `IMPORT_FROM` is the directory name on your computer. If you're using `docker-machine` on Windows, this is the directory location mounted inside the machine.
+* `IMPORT_FILE` is just the name of the `osm.pbf` file which you want to import.
 
-`IMPORT_FILENAME` is just the name of the `osm.pbf` file which you want to import.
+* On Windows, replace the word `export` with `SET`.
 
-On Windows, replace the word `export` with `SET`.
-
-#### Import data
+#### 2. Import data
 Once those environment variables are set, this will import your data:
 
 `docker-compose -f docker-compose-importer.yml run --rm data-importer`
-
-This seems to fail the first time, and you can solve it by restarting the tile server/database by running `docker-compose stop` and then `docker-compose start`.
 
 The import may also fail if there is insufficient RAM for the import. See the [Customising Data Import](#customising-data-import) and [Hardware Requirements](#hardware-requirements) sections.
 
@@ -51,19 +51,15 @@ The import may also fail if there is insufficient RAM for the import. See the [C
 Once data import is complete, you should restart the tile server with
 
 ```
-docker-compose stop
-docker-compose start
+docker-compose restart
 ```
-
-After a short time, the server will be up and running, and you'll be able to find tiles at `http://localhost/osm-tiles/{z}/{x}/{y}.png` where `z` is the zoom coordinate and `x` and `y` are the tile coordinates for that zoom level. for the most basic test then visit `http://localhost/osm-tiles/0/0/0.png` and see if you get anything. Replace `localhost` with the IP of your docker machine (usually `192.168.99.100`) if you're on Windows.
-
-You can restart the tile server at any point with these commands. Stopping maintains all state and when start is run the containers should not have lost any data.
+You'll then be able to find a map page at `http://localhost`. If you've got your own web client, you'll find the tiles at `http://localhost/osm-tiles/{z}/{x}/{y}.png` where `z` is the zoom coordinate and `x` and `y` are the tile coordinates for that zoom level. For a basic test visit `http://localhost/osm-tiles/0/0/0.png` and see if you can see the world. Replace `localhost` with the IP of your docker machine (usually `192.168.99.100`) if you're on Windows.
 
 ### Updating the tile server
 1. Make sure the server is running.
-2. Set environment variables and run the import command under the [Populate the database](#populate-the-database) section. Note this will clear the  database before repopulating it. If you want to keep the old database then you'll need to backup the `osmserver_osm_postgres_database` volume. [Here's an example of how to do that](https://loomchild.net/2017/03/26/backup-restore-docker-named-volumes/).
-3. Restart the tile server as in the [Restart the tile server](#restart-the-tile-server) section.
-
+2. Set environment variables and run the import command as in the [Populate the database](#populate-the-database) section. Note this will clear the database before repopulating it. If you want to keep the old database then you'll need to backup the `osmserver_osm_postgres_database` volume. [Here's an example of how to do that](https://loomchild.net/2017/03/26/backup-restore-docker-named-volumes/).
+3. Clear pre-rendered tiles as in the [clear pre-rendered or cached tiles](#clear-pre-rendered-or-cached-tiles) section.
+4. Restart the tile server as in the [Restart the tile server](#restart-the-tile-server) section.
 
 ### Destroy the tile server
 To clean everything up, remove the containers and the volume containing the postgres database with
@@ -78,17 +74,18 @@ The volume name to remove may be different - you can find the volume name with `
 You may wish to customise the parameters which are passed to `osm2pgsql` which is the program which imports the data into the database. Changing these can vary the speed of the import quite significantly. In particular, giving it more RAM helps. You can edit the `docker-compose-importer.yml` file to change the `osm2pgsql` command. The `--cache` argument is how many MB of RAM can be used for the import. The `--cache-strategy` is about how memory is allocated (in one block or sparsely). More information on the import can be found [here](https://wiki.openstreetmap.org/wiki/Osm2pgsql#Optimization) and [here](http://www.volkerschatz.com/net/osm/osm2pgsql-usage.html).
 
 ### Tile pre-rendering
-You can force the rendering of all or a subset of map tiles. This means that when they are requested it will be faster, because the png will only need to be fetched from disk rather than having to be generated from the database as well. The `render_list_geo.pl` perl script does this. See the README for [this repository](https://github.com/alx77/render_list_geo.pl) for more information on how to use the command..
+You can force the rendering of all or a subset of map tiles. This means that when they are requested it will be faster, because the png will only need to be fetched from disk rather than having to be generated from the database as well. The `render_list_geo` perl script does this. See the README for [this repository](https://github.com/alx77/render_list_geo.pl) for more information on how to use the command..
 
-In the following commands, you will need to replace `osmserver_tile-server_1` with the name of the running tile server docker container. You should be able to get the name of it with `docker ps | grep tile-server`.
+In the following command, you will need to replace `osmserver_tile-server_1` with the name of the running tile server docker container. You should be able to get the name of it with `docker ps | grep tile-server`.
 
-1. Copy the perl script into the running docker container:
+This example renders zoom levels 0 to 15 for the UK. (z is zoom, x is longitude, y is latitude). See also [the original readme](https://github.com/alx77/render_list_geo.pl).
 
-`docker cp render_list_geo.pl osmserver_tile-server_1:/tmp/render_list_geo.pl`
+`docker exec -it osmserver_tile-server_1 render_list_geo -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9`
 
-2. Run the tile rendering. This example will render zoom levels 0 to 15 for the UK. (z is zoom, x is longitude, y is latitude). See also [the original readme](https://github.com/alx77/render_list_geo.pl).
+### Clear pre-rendered or cached tiles
+In the following command, you will need to replace `osmserver_tile-server_1` with the name of the running tile server docker container. You should be able to get the name of it with `docker ps | grep tile-server`. This will clear all cached tiles:
 
-`docker exec -it osmserver_tile-server_1 /tmp/render_list_geo.pl -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9`
+`docker exec -it osmserver_tile-server_1 rm -r /var/lib/mod_tile/default`
 
 ### Hardware requirements
 **Memory:** The more memory you can give the process, the better. Typically `--cache 4000` is enough for it not to be too slow, but `--cache 64000` on a beefy computer would be faster. The `--cache-strategy` flag can also make a difference.

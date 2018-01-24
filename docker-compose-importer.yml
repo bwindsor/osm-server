@@ -4,11 +4,11 @@ services:
     image: openfirmware/osm2pgsql
     volumes:
       - type: bind
-        source: ${LOCAL_IMPORT_DIRECTORY}
+        source: ${IMPORT_FROM}
         target: /osm
 
     entrypoint: ""
-    command: osm2pgsql --create --slim --cache 1000 --cache-strategy sparse --database ${OSM_DB} --username ${OSM_USER} --host osm-db --port 5432 /osm/${IMPORT_FILENAME}
+    command: osm2pgsql --create --slim --cache 1000 --cache-strategy sparse --database ${OSM_DB} --username ${OSM_USER} --host osm-db --port 5432 /osm/${IMPORT_FILE}
     networks:
       - osm_network
 
