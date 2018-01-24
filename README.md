@@ -1,6 +1,6 @@
 # osm-server
 
-This provides an open street map file server inside Docker containers.
+This provides an open street map tile server inside Docker containers.
 
 ## Setup
 You'll need [Docker](https://www.docker.com/) and [Docker compose](https://docs.docker.com/compose/) installed.
@@ -75,7 +75,7 @@ docker network rm osm_network  # Removes the network
 The volume name to remove may be different - you can find the volume name with `docker volume ls`.
 
 ### Customising data import
-You may with to customise the parameters which are passed to `osm2pgsql` which is the program which imports the data into the database. Changing these can vary the speed of the import quite significantly. In particular, giving it more RAM helps. You can edit the `docker-compose-importer.yml` file to change the `osm2pgsql` command. The `--cache` argument is how many MB of RAM can be used for the import. The `--cache-strategy` is about how memory is allocated (in one block or sparsely). More information on the import can be found [here](https://wiki.openstreetmap.org/wiki/Osm2pgsql#Optimization) and [here](http://www.volkerschatz.com/net/osm/osm2pgsql-usage.html).
+You may wish to customise the parameters which are passed to `osm2pgsql` which is the program which imports the data into the database. Changing these can vary the speed of the import quite significantly. In particular, giving it more RAM helps. You can edit the `docker-compose-importer.yml` file to change the `osm2pgsql` command. The `--cache` argument is how many MB of RAM can be used for the import. The `--cache-strategy` is about how memory is allocated (in one block or sparsely). More information on the import can be found [here](https://wiki.openstreetmap.org/wiki/Osm2pgsql#Optimization) and [here](http://www.volkerschatz.com/net/osm/osm2pgsql-usage.html).
 
 ### Tile pre-rendering
 You can force the rendering of all or a subset of map tiles. This means that when they are requested it will be faster, because the png will only need to be fetched from disk rather than having to be generated from the database as well. The `render_list_geo.pl` perl script does this. See the README for [this repository](https://github.com/alx77/render_list_geo.pl) for more information on how to use the command..
