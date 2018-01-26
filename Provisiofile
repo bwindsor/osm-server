@@ -1,3 +1,13 @@
+#task install unzip
+    provisio install yum unzip
+#end
+
+#task clone_this_repo
+    provisio download https://github.com/bwindsor/osm-server/archive/master.zip
+    unzip /tmp/master.zip ~/code
+    cd ~/code
+#end
+
 #task install_docker once
     provisio install yum yum-utils
     provisio install yum device-mapper-persistent-data
