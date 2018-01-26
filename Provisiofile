@@ -4,7 +4,7 @@
 
 #task clone_this_repo
     provisio download https://github.com/bwindsor/osm-server/archive/master.zip
-    unzip /tmp/master.zip ~/code
+    unzip /tmp/master.zip -d ~/code
     cd ~/code
 #end
 
