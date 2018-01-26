@@ -40,16 +40,14 @@
 
 #task download_map_data always if UPDATING_MAP
     mkdir -p /tmp/map-data
-    provisio download http://download.geofabrik.de/north-america-180125.osm.pbf
-    mv /tmp/north-america-180125.osm.pbf /tmp/map-data
+    provisio download http://download.geofabrik.de/europe/ireland-and-northern-ireland-180125.osm.pbf
+    mv /tmp/ireland-and-northern-ireland-180125.osm.pbf /tmp/map-data
     provisio download http://download.geofabrik.de/europe/great-britain-180125.osm.pbf
     mv /tmp/great-britain-180125.osm.pbf /tmp/map-data
-    provisio download http://download.geofabrik.de/australia-oceania-180125.osm.pbf
-    mv /tmp/australia-oceania-180125.osm.pbf /tmp/map-data
 #end
 
 #task merge_map_data always if UPDATING_MAP
-    docker run -it --rm -v /tmp/map-data:/data bwindsor/osm-pbf-merger:v1.0 north-america-180125.osm.pbf great-britain-180125.osm.pbf australia-oceania-180125.osm.pbf -o merged.osm.pbf
+    docker run -it --rm -v /tmp/map-data:/data bwindsor/osm-pbf-merger:v1.0 ireland-and-northern-ireland-180125.osm.pbf great-britain-180125.osm.pbf -o merged.osm.pbf
 #end
 
 #task initialise_tile_server always
