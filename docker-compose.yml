@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 services:
   osm-db:
     image: chatelao/docker-postgres-osm
@@ -23,7 +23,7 @@ services:
 
 networks:
   osm_network:
-    external: true
+    name: osm_server_network
 
 volumes:
   osm_postgres_database:

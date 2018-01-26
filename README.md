@@ -3,14 +3,7 @@
 This provides an open street map tile server inside Docker containers.
 
 ## Setup
-You'll need [Docker](https://www.docker.com/) and [Docker compose](https://docs.docker.com/compose/) installed.
-
-### Create a docker network
-This will be used to allow the docker containers to communicate with each other
-
-`docker network create osm_network`
-
-You must call it this as the `docker-compose` files will later look for a network with this name.
+You'll need [Docker](https://www.docker.com/) 17.12.0 or higher, and [Docker compose](https://docs.docker.com/compose/) installed.
 
 ### Initialise the tile server
 You can initialise the tile server by running the script
@@ -20,7 +13,7 @@ You can initialise the tile server by running the script
 initialise_tile_server.bat  # Linux type shell on Windows
 ```
 
-This will start two containers - a Postgres database and a renderer/web server. It takes about 30s to run because it waits for the containers to be up and then restarts them.
+This will start two containers - a Postgres database and a renderer/web server. It takes about 30s to run because it waits for the containers to be up and then restarts them. A network and a volume for the database will also be created.
 
 ### Get some map data
 Download a PBF file of OSM data from somewhere like [Geofabrik](http://download.geofabrik.de/).
@@ -64,9 +57,8 @@ You'll then be able to find a map page at `http://localhost`. If you've got your
 ### Destroy the tile server
 To clean everything up, remove the containers and the volume containing the postgres database with
 ```
-docker-compose down  # Removes the containers
+docker-compose down  # Removes the containers and network
 docker volume rm osmserver_osm_postgres_database  # Removes the data
-docker network rm osm_network  # Removes the network
 ```
 The volume name to remove may be different - you can find the volume name with `docker volume ls`.
 
@@ -111,4 +103,4 @@ This isn't part of the running system, but this container contains `osm2pgsql`, 
 * The rendered png tiles are cached inside the web server container. As such the tile server container will grow in size over time.
 
 ### Networking
-* A manually created network is connected to by all three containers. This allows them to communicate with each other.
+* A network is connected to by all three containers. This allows them to communicate with each other.

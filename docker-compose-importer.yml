@@ -1,4 +1,4 @@
-version: '3.2'
+version: '3.5'
 services:
   data-importer:
     image: openfirmware/osm2pgsql
@@ -14,4 +14,5 @@ services:
 
 networks:
   osm_network:
-    external: true
+    external:
+      name: osm_server_network
