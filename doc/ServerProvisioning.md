@@ -10,7 +10,8 @@ chmod +x /usr/bin/provisio
 ```
 curl -s https://raw.githubusercontent.com/bwindsor/osm-server/master/Provisiofile > Provisiofile
 ```
-3. Run the provisioner
+3. The Provisiofile currently downloads a few areas of the world and combines them. If required, modify the `download_map_data` and `merge_map_data` tasks for sections of your choice.
+4. Run the provisioner
 The `UPDATING_MAP` environment variable tells the provisioner that it should re-run the map download and import tasks.
 If you subsequently re-run the provisioner, for example if you have updated the map style, but not the map data itself, you should NOT set the environment variable.
 ```
