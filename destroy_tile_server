@@ -1,0 +1,6 @@
+#!/bin/bash
+# Remove containers and network
+docker-compose down
+
+# echo Removing volume
+docker volume rm `docker volume ls -q | grep osm_postgres_database | head -1`

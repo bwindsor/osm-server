@@ -1,0 +1,63 @@
+#task install_docker once
+    provisio install yum yum-utils
+    provisio install yum device-mapper-persistent-data
+    provisio install yum lvm2
+    provisio download https://download.docker.com/linux/centos/docker-ce.repo
+    sudo yum-config-manager --add-repo /tmp/docker-ce.repo
+    provisio install yum docker-ce
+    sudo systemctl enable docker
+    sudo systemctl start docker
+#end
+
+#task install_docker_compose once
+    provisio install yum curl
+    provisio download https://github.com/docker/compose/releases/download/1.19.0-rc1/docker-compose-`uname -s`-`uname -m`
+    sudo mv /tmp/docker-compose-`uname -s`-`uname -m` /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+#end
+
+#task pull_docker_images once
+    provisio install docker chatelao/docker-postgres-osm
+    provisio install docker smartroadsense/osm-tiles
+    provisio install docker openfirmware/osm2pgsql
+    provisio install docker bwindsor/osm-pbf-merger:v1.0
+#end
+
+#task open_port_80 once
+    firewall-cmd --zone=public --add-port=80/tcp --permanent
+    firewall-cmd --reload
+#end
+
+#task download_map_data once
+    mkdir -p /tmp/map-data
+    provisio download http://download.geofabrik.de/north-america-180125.osm.pbf
+    mv /tmp/north-america-180125.osm.pbf /tmp/map-data
+    provisio download http://download.geofabrik.de/europe/great-britain-180125.osm.pbf
+    mv /tmp/great-britain-180125.osm.pbf /tmp/map-data
+    provisio download http://download.geofabrik.de/australia-oceania-180125.osm.pbf
+    mv /tmp/australia-oceania-180125.osm.pbf /tmp/map-data
+#end
+
+#task merge_map_data once
+    docker run -it --rm -v /tmp/map-data:/data bwindsor/osm-pbf-merger:v1.0 north-america-180125.osm.pbf great-britain-180125.osm.pbf australia-oceania-180125.osm.pbf -o merged.osm.pbf
+#end
+
+#task destroy_tile_server always
+    ./destroy_tile_server
+    sleep 3s
+#end
+
+#task initialise_tile_server always
+    ./initialise_tile_server
+#end
+
+#task import_map_data always
+    export IMPORT_FROM=/tmp/map-data
+    export IMPORT_FILE=merged.osm.pbf
+    docker-compose -f docker-compose-importer.yml run --rm data-importer
+    sleep 1s
+#end
+
+#task restart_tile_server always
+    docker-compose restart
+#end
