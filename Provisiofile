@@ -53,16 +53,11 @@
     docker run -it --rm -v /tmp/map-data:/data bwindsor/osm-pbf-merger:v1.0 north-america-180125.osm.pbf great-britain-180125.osm.pbf australia-oceania-180125.osm.pbf -o merged.osm.pbf
 #end
 
-#task destroy_tile_server always
-    ./destroy_tile_server
-    sleep 3s
-#end
-
 #task initialise_tile_server always
     ./initialise_tile_server
 #end
 
-#task import_map_data always
+#task import_map_data once
     export IMPORT_FROM=/tmp/map-data
     export IMPORT_FILE=merged.osm.pbf
     docker-compose -f docker-compose-importer.yml run --rm data-importer
@@ -71,4 +66,14 @@
 
 #task restart_tile_server always
     docker-compose restart
+#end
+
+#task clear_cached_tiles once
+    TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
+    docker exec -it $TILE_CONTAINER_ID rm -r /var/lib/mod_tile/default
+#end
+
+#task prerender_tiles once
+    TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
+    docker exec -it $TILE_CONTAINER_ID render_list_geo -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9`
 #end

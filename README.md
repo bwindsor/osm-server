@@ -57,10 +57,9 @@ You'll then be able to find a map page at `http://localhost`. If you've got your
 ### Destroy the tile server
 To clean everything up, remove the containers and the volume containing the postgres database with
 ```
-docker-compose down  # Removes the containers and network
-docker volume rm osmserver_osm_postgres_database  # Removes the data
+./destroy_tile_server    # Linux
+destroy_tile_server.bat  # Linux type shell on Windows
 ```
-The volume name to remove may be different - you can find the volume name with `docker volume ls -q | grep osm_postgres_database | head -1`.
 
 ### Customising data import
 You may wish to customise the parameters which are passed to `osm2pgsql` which is the program which imports the data into the database. Changing these can vary the speed of the import quite significantly. In particular, giving it more RAM helps. You can edit the `docker-compose-importer.yml` file to change the `osm2pgsql` command. The `--cache` argument is how many MB of RAM can be used for the import. The `--cache-strategy` is about how memory is allocated (in one block or sparsely). More information on the import can be found [here](https://wiki.openstreetmap.org/wiki/Osm2pgsql#Optimization) and [here](http://www.volkerschatz.com/net/osm/osm2pgsql-usage.html).
@@ -104,3 +103,28 @@ This isn't part of the running system, but this container contains `osm2pgsql`, 
 
 ### Networking
 * A network is connected to by all three containers. This allows them to communicate with each other.
+
+## Provisioning a Centos Tile Server
+A Provisiofile is provided which will set up a CentOS 7 server ready to provide map data. See [provisio](https://github.com/chmcewan/Provisio) for more information.
+
+1. Install Provisio:
+```
+curl -s https://raw.githubusercontent.com/chmcewan/Provisio/master/provisio >> /usr/bin/provisio
+chmod +x /usr/bin/provisio
+```
+2. Grab the Provisiofile from this repository
+```
+https://raw.githubusercontent.com/bwindsor/osm-server/master/Provisiofile >> Provisiofile
+```
+3. Run the provisioner
+```
+provisio up
+```
+
+### Provisioning on a network with no internet connection
+1. Run Provisio as above on an internet connected machine
+2. Burn a disc (or equivalent) containing the following
+    * `provisio`
+    * `Provisiofile`
+    * Entire `.provisio` folder which will have been created in the same directory as where you ran provisio up from
+3. Import the contents of this disc, put provisio on the path and make sure its executable, and from the same folder which contains the `Provisiofile` and `.provisio` folder, run `provisio up`.
