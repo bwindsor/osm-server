@@ -1,5 +1,5 @@
 #!/bin/bash
-# Create new containers, and detach from them
+# Create new containers, make sure they are build to the latest version, and detach from them
 docker-compose up --build -d
 # Wait to make sure containers are properly up and running
 sleep 15s
