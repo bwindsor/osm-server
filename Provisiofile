@@ -38,7 +38,7 @@
     firewall-cmd --reload
 #end
 
-#task download_map_data once
+#task download_map_data always if UPDATING_MAP
     mkdir -p /tmp/map-data
     provisio download http://download.geofabrik.de/north-america-180125.osm.pbf
     mv /tmp/north-america-180125.osm.pbf /tmp/map-data
@@ -48,17 +48,18 @@
     mv /tmp/australia-oceania-180125.osm.pbf /tmp/map-data
 #end
 
-#task merge_map_data once
+#task merge_map_data always if UPDATING_MAP
     docker run -it --rm -v /tmp/map-data:/data bwindsor/osm-pbf-merger:v1.0 north-america-180125.osm.pbf great-britain-180125.osm.pbf australia-oceania-180125.osm.pbf -o merged.osm.pbf
 #end
 
 #task initialise_tile_server always
     cd osm-server-master
+    chmod +x initialise_tile_server
     ./initialise_tile_server
     cd ..
 #end
 
-#task import_map_data once
+#task import_map_data always if UPDATING_MAP
     export IMPORT_FROM=/tmp/map-data
     export IMPORT_FILE=merged.osm.pbf
     cd osm-server-master
@@ -73,12 +74,15 @@
     cd ..
 #end
 
-#task clear_cached_tiles once
+#task clear_cached_tiles always if UPDATING_MAP
     TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
     docker exec -it $TILE_CONTAINER_ID rm -r /var/lib/mod_tile/default
 #end
 
-#task prerender_tiles once
+#task prerender_tiles always
+    # Note this task does nothing if prerendering has already been done, it doesn't matter that we are rerunning it
     TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
     docker exec -it $TILE_CONTAINER_ID render_list_geo -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9`
 #end
+
+
