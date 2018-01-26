@@ -1,9 +1,10 @@
-#task install unzip
+#task install unzip once
     provisio install yum unzip
 #end
 
-#task clone_this_repo
+#task clone_this_repo once
     provisio download https://github.com/bwindsor/osm-server/archive/master.zip
+    rm -fr ~/code
     unzip /tmp/master.zip -d ~/code
     cd ~/code
 #end
