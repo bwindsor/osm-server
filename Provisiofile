@@ -4,9 +4,8 @@
 
 #task clone_this_repo once
     provisio download https://github.com/bwindsor/osm-server/archive/master.zip
-    rm -fr ~/code
-    unzip /tmp/master.zip -d ~/code
-    cd ~/code
+    rm -fr osm-server-master
+    unzip -o /tmp/master.zip -d .
 #end
 
 #task install_docker once
@@ -54,18 +53,24 @@
 #end
 
 #task initialise_tile_server always
+    cd osm-server-master
     ./initialise_tile_server
+    cd ..
 #end
 
 #task import_map_data once
     export IMPORT_FROM=/tmp/map-data
     export IMPORT_FILE=merged.osm.pbf
+    cd osm-server-master
     docker-compose -f docker-compose-importer.yml run --rm data-importer
+    cd ..
     sleep 1s
 #end
 
 #task restart_tile_server always
+    cd osm-server-master
     docker-compose restart
+    cd ..
 #end
 
 #task clear_cached_tiles once
