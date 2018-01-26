@@ -60,7 +60,7 @@ To clean everything up, remove the containers and the volume containing the post
 docker-compose down  # Removes the containers and network
 docker volume rm osmserver_osm_postgres_database  # Removes the data
 ```
-The volume name to remove may be different - you can find the volume name with `docker volume ls`.
+The volume name to remove may be different - you can find the volume name with `docker volume ls -q | grep osm_postgres_database | head -1`.
 
 ### Customising data import
 You may wish to customise the parameters which are passed to `osm2pgsql` which is the program which imports the data into the database. Changing these can vary the speed of the import quite significantly. In particular, giving it more RAM helps. You can edit the `docker-compose-importer.yml` file to change the `osm2pgsql` command. The `--cache` argument is how many MB of RAM can be used for the import. The `--cache-strategy` is about how memory is allocated (in one block or sparsely). More information on the import can be found [here](https://wiki.openstreetmap.org/wiki/Osm2pgsql#Optimization) and [here](http://www.volkerschatz.com/net/osm/osm2pgsql-usage.html).
