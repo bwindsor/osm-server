@@ -2,7 +2,7 @@
     provisio install yum unzip
 #end
 
-#task clone_this_repo once
+#task clone_this_repo always
     provisio download https://github.com/bwindsor/osm-server/archive/master.zip
     rm -fr osm-server-master
     unzip -o /tmp/master.zip -d .
@@ -29,7 +29,7 @@
 #task pull_docker_images once
     provisio install docker chatelao/docker-postgres-osm
     provisio install docker smartroadsense/osm-tiles
-    provisio install docker openfirmware/osm2pgsql
+    provisio install docker openfirmware/osm2pgsql:0.87.2
     provisio install docker bwindsor/osm-pbf-merger:v1.0
 #end
 
@@ -80,7 +80,7 @@
 #task prerender_tiles always
     # Note this task does nothing if prerendering has already been done, it doesn't matter that we are rerunning it
     TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
-    docker exec -it $TILE_CONTAINER_ID render_list_geo -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9`
+    docker exec -it $TILE_CONTAINER_ID render_list_geo -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9
 #end
 
 

@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   data-importer:
-    image: openfirmware/osm2pgsql
+    image: openfirmware/osm2pgsql:0.87.2
     volumes:
       - type: bind
         source: ${IMPORT_FROM}

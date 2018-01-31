@@ -25,6 +25,6 @@ In the following command, you will need to replace `osmserver_tile-server_1` wit
 ## Hardware requirements
 **Memory:** The more memory you can give the process, the better. Typically `--cache 4000` is enough for it not to be too slow, but `--cache 64000` on a beefy computer would be faster. The `--cache-strategy` flag can also make a difference.
 
-**Disk:** To import the USA you'll need about 250GB of disk space.
+**Disk:** For example, to import the USA you'll need about 250GB of disk space on the partition where docker containers and volumes are stored - in the usual basic setup, this means you should have a small `home` partition and a large `root` partition.
 
 **CPU:** For rendering tiles quickly, more cores and faster speeds will lead to tiles loading faster for the user.
