@@ -10,12 +10,18 @@ chmod +x /usr/bin/provisio
 ```
 curl -s https://raw.githubusercontent.com/bwindsor/osm-server/master/Provisiofile > Provisiofile
 ```
-3. The Provisiofile currently downloads the UK and NI sections of the world and merges them. If required, modify the `download_map_data` and `merge_map_data` tasks inside the `Provisiofile` for sections of your choice.
+3. The Provisiofile currently downloads the UK and NI sections of the world and merges them. If required, modify the `declare_list_of_map_files_to_download` task at the very top of the `Provisiofile` to import sections of your choice.
 4. Run the provisioner.
-The `UPDATING_MAP` environment variable tells the provisioner that it should re-run the map download and import tasks.
-If you subsequently re-run the provisioner, for example if you have updated the map style, but not the map data itself, you should NOT set the environment variable.
+The `NO_MAP_IMPORT` environment variable tells the provisioner that it NOT download or import any map data.
+The `UPDATING_REPO` environment variable tells the provisioner that it should pull the latest code from this repo (requires internet).
+If you subsequently re-run the provisioner, for example if you have updated the map style, but NOT the map data itself, you should set the environment variable `NO_MAP_IMPORT` to save hours wasted waiting for the database import when the map data hasn't even changed.
 ```
-export UPDATING_MAP=yes   # ONLY set this if you have changed the map data (or it's the first time)
+provisio up
+```
+
+On subsequent runs, to prevent a re-import of the map
+```
+export NO_MAP_IMPORT=1
 provisio up
 ```
 
@@ -25,4 +31,4 @@ provisio up
     * `provisio`
     * `Provisiofile`
     * Entire `.provisio` folder which will have been created in the same directory as where you ran provisio up from
-3. Import the contents of this disc, put provisio on the path and make sure its executable, and from the same folder which contains the `Provisiofile` and `.provisio` folder, run `export UPDATING_MAP=yes` and then `provisio up`.
+3. Import the contents of this disc, put provisio on the path and make sure its executable, and from the same folder which contains the `Provisiofile` and `.provisio` folder, and then `provisio up`.

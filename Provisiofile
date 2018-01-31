@@ -1,11 +1,13 @@
-#task install unzip once
-    provisio install yum unzip
+#task declare_list_of_map_files_to_download always
+    # Modify this list depending on what you want to import
+    declare -a MAP_URLS=(
+        "http://download.geofabrik.de/europe/ireland-and-northern-ireland-180125.osm.pbf" 
+        "http://download.geofabrik.de/europe/great-britain-180125.osm.pbf"
+    )
 #end
 
-#task clone_this_repo always
-    provisio download https://github.com/bwindsor/osm-server/archive/master.zip
-    rm -fr osm-server-master
-    unzip -o /tmp/master.zip -d .
+#task install unzip once
+    provisio install yum unzip
 #end
 
 #task install_docker once
@@ -33,46 +35,65 @@
     provisio install docker bwindsor/osm-pbf-merger:v1.0
 #end
 
+#task download_map_data always unless NO_MAP_IMPORT
+    mkdir -p /tmp/map-data
+
+    ## now loop through the above array, downloading the files and moving them to /tmp/map-data
+    MAP_FILE_LIST=""
+    for i in "${MAP_URLS[@]}"
+    do
+        provisio download "$i"
+        MAP_FILE_NAME=$(basename "$i")
+        mv "/tmp/$MAP_FILE_NAME" /tmp/map-data
+        MAP_FILE_LIST="$MAP_FILE_LIST $MAP_FILE_NAME"
+    done
+#end
+
+#task clone_this_repo once
+    # This will clone into /tmp/osm-server
+    provisio pull --no-up bwindsor/osm-server
+    CODE_REPO_PATH=/tmp/osm-server
+#end
+
+#task pull_this_repo_latest_changes always if UPDATING_REPO
+    provisio pull -f --no-up bwindsor/osm-server
+#end
+
+# ----- END OF TASKS REQUIRING AN INTERNET CONNECTION ----- #
+
 #task open_port_80 once
     firewall-cmd --zone=public --add-port=80/tcp --permanent
     firewall-cmd --reload
 #end
 
-#task download_map_data always if UPDATING_MAP
-    mkdir -p /tmp/map-data
-    provisio download http://download.geofabrik.de/europe/ireland-and-northern-ireland-180125.osm.pbf
-    mv /tmp/ireland-and-northern-ireland-180125.osm.pbf /tmp/map-data
-    provisio download http://download.geofabrik.de/europe/great-britain-180125.osm.pbf
-    mv /tmp/great-britain-180125.osm.pbf /tmp/map-data
-#end
-
-#task merge_map_data always if UPDATING_MAP
-    docker run -it --rm -v /tmp/map-data:/data bwindsor/osm-pbf-merger:v1.0 ireland-and-northern-ireland-180125.osm.pbf great-britain-180125.osm.pbf -o merged.osm.pbf
+#task merge_map_data always unless NO_MAP_IMPORT
+    # Merge the list of files downloaded earlier
+    docker run -it --rm -v /tmp/map-data:/data bwindsor/osm-pbf-merger:v1.0 $MAP_FILE_LIST -o merged.osm.pbf
 #end
 
 #task initialise_tile_server always
-    cd osm-server-master
-    chmod +x initialise_tile_server
-    ./initialise_tile_server
-    cd ..
+    pushd "$CODE_REPO_PATH"
+        chmod +x initialise_tile_server
+        ./initialise_tile_server
+    popd
 #end
 
-#task import_map_data always if UPDATING_MAP
+#task import_map_data always unless NO_MAP_IMPORT
     export IMPORT_FROM=/tmp/map-data
     export IMPORT_FILE=merged.osm.pbf
-    cd osm-server-master
-    docker-compose -f docker-compose-importer.yml run --rm data-importer
-    cd ..
+    pushd "$CODE_REPO_PATH"
+        docker-compose -f docker-compose-importer.yml run --rm data-importer
+    popd
     sleep 1s
 #end
 
 #task restart_tile_server always
-    cd osm-server-master
-    docker-compose restart
-    cd ..
+    pushd "$CODE_REPO_PATH"
+        docker-compose restart
+    popd
 #end
 
-#task clear_cached_tiles always if UPDATING_MAP
+#task clear_cached_tiles always unless NO_MAP_IMPORT
     TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
     docker exec -it $TILE_CONTAINER_ID rm -r /var/lib/mod_tile/default
 #end
@@ -82,5 +103,3 @@
     TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
     docker exec -it $TILE_CONTAINER_ID render_list_geo -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9
 #end
-
-
