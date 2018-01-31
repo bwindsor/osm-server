@@ -52,7 +52,6 @@
 #task clone_this_repo once
     # This will clone into /tmp/osm-server
     provisio pull --no-up bwindsor/osm-server
-    CODE_REPO_PATH=/tmp/osm-server
 #end
 
 #task pull_this_repo_latest_changes always if UPDATING_REPO
@@ -60,6 +59,10 @@
 #end
 
 # ----- END OF TASKS REQUIRING AN INTERNET CONNECTION ----- #
+
+#task setup_code_path always
+    CODE_REPO_PATH=/tmp/osm-server
+#end
 
 #task open_port_80 once
     firewall-cmd --zone=public --add-port=80/tcp --permanent
@@ -95,7 +98,7 @@
 
 #task clear_cached_tiles always unless NO_MAP_IMPORT
     TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
-    docker exec -it $TILE_CONTAINER_ID rm -r /var/lib/mod_tile/default
+    docker exec -it $TILE_CONTAINER_ID rm -rf /var/lib/mod_tile/default
 #end
 
 #task prerender_tiles always
