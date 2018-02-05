@@ -25,6 +25,13 @@ export NO_MAP_IMPORT=1
 provisio up
 ```
 
+## Troubleshooting
+Sometimes, for some reason, when you restart the tile server it might fail to clean up the apache PID file, which leads to the web server not starting correctly. If this happens, you can delete this file manually with
+
+`docker exec -it --user root $(docker ps | grep tile-server | awk '{print $1;}') /bin/bash -c 'rm -f $APACHE_PID_FILE'`
+
+and then restart the containers with `docker-compose restart`.
+
 ## Provisioning on a network with no internet connection
 1. Run Provisio as above on an internet connected machine
 2. Burn a disc (or equivalent) containing the following
