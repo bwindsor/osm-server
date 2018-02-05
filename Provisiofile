@@ -12,7 +12,7 @@
     provisio install yum lvm2
     provisio download https://download.docker.com/linux/centos/docker-ce.repo
     sudo yum-config-manager --add-repo /tmp/docker-ce.repo
-    provisio install rpm-key docker-ce http://download.docker.com/linux/centos/gpg
+    provisio install rpm-key docker-ce https://download.docker.com/linux/centos/gpg
     provisio install yum docker-ce
     sudo systemctl enable docker
     sudo systemctl start docker
