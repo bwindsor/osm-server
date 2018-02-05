@@ -6,10 +6,6 @@
     )
 #end
 
-#task install unzip once
-    provisio install yum unzip
-#end
-
 #task install_docker once
     provisio install yum yum-utils
     provisio install yum device-mapper-persistent-data
@@ -35,7 +31,7 @@
     provisio install docker bwindsor/osm-pbf-merger:v1.0
 #end
 
-#task download_map_data always unless NO_MAP_IMPORT
+#task download_map_data always
     mkdir -p /tmp/map-data
 
     ## now loop through the above array, downloading the files and moving them to /tmp/map-data
@@ -104,5 +100,7 @@
 #task prerender_tiles always
     # Note this task does nothing if prerendering has already been done, it doesn't matter that we are rerunning it
     TILE_CONTAINER_ID=$(docker ps | grep tile-server | awk '{print $1;}')
-    docker exec -it $TILE_CONTAINER_ID render_list_geo -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9
+    # Uncomment the following line and change the arguments to render the areas you require.
+    # For multiple areas, just copy and paste the line so it runs for each area
+    # docker exec -it $TILE_CONTAINER_ID render_list_geo -z 0 -Z 15 -x -8 -X 1.8 -y 49.8 -Y 60.9
 #end

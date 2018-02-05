@@ -10,7 +10,7 @@ chmod +x /usr/bin/provisio
 ```
 curl -s https://raw.githubusercontent.com/bwindsor/osm-server/master/Provisiofile > Provisiofile
 ```
-3. The Provisiofile currently downloads the UK and NI sections of the world and merges them. If required, modify the `declare_list_of_map_files_to_download` task at the very top of the `Provisiofile` to import sections of your choice. You might also want to modify the final `prerender_tiles` task to call `render_list_geo` with different arguments. See [tile pre-rendering](Updating.md#tile-pre-rendering).
+3. The Provisiofile currently downloads the UK and NI sections of the world and merges them. If required, modify the `declare_list_of_map_files_to_download` task at the very top of the `Provisiofile` to import sections of your choice. If you want to prerender tiles, you should edit the `prerender_tiles` task to call `render_list_geo` with the required arguments. See [tile pre-rendering](Updating.md#tile-pre-rendering).
 4. Run the provisioner.
 The `NO_MAP_IMPORT` environment variable tells the provisioner that it NOT download or import any map data.
 The `UPDATING_REPO` environment variable tells the provisioner that it should pull the latest code from this repo (requires internet).
