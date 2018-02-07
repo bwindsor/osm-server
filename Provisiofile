@@ -71,11 +71,28 @@
     docker run -it --rm -v /tmp/map-data:/data bwindsor/osm-pbf-merger:v1.0 $MAP_FILE_LIST -o merged.osm.pbf
 #end
 
-#task initialise_tile_server always
+#task create_tileserver_user once
+    useradd -M -G docker tileserver
+    # Assign code ownership to tileserver
+    chown -R tileserver:tileserver "$CODE_REPO_PATH"
+#end
+
+#task install_tile_systemd_service once
     pushd "$CODE_REPO_PATH"
-        chmod +x initialise_tile_server
-        ./initialise_tile_server
+        sudo cp service/tile-server.service /etc/systemd/system/tile-server.service
+        sudo chmod 664 /etc/systemd/system/tile-server.service
     popd
+    # Get systemd to reload the latest configurations
+    systemctl daemon-reload
+    # Make the tile server run at start up
+    systemctl enable tile-server.service
+#end
+
+#task start_tile_server always
+    # Restart (or start) the service twice, because if the configuration has changed it doesn't always work the first time
+    systemctl restart tile-server.service
+    sleep 15s
+    systemctl restart tile-server.service
 #end
 
 #task import_map_data always unless NO_MAP_IMPORT
@@ -88,9 +105,7 @@
 #end
 
 #task restart_tile_server always
-    pushd "$CODE_REPO_PATH"
-        docker-compose restart
-    popd
+    systemctl restart tile-server.service
 #end
 
 #task clear_cached_tiles always unless NO_MAP_IMPORT

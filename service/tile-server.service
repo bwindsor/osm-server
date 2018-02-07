@@ -1,0 +1,14 @@
+[Unit]
+Description=Open street map tile server
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=tileserver
+WorkingDirectory=/tmp/osm-server
+ExecStart=/usr/local/bin/docker-compose up --build --abort-on-container-exit
+ExecStop=/usr/local/bin/docker-compose stop
+
+[Install]
+WantedBy=multi-user.target
