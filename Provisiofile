@@ -11,18 +11,18 @@
     provisio install yum device-mapper-persistent-data
     provisio install yum lvm2
     provisio download https://download.docker.com/linux/centos/docker-ce.repo
-    sudo yum-config-manager --add-repo /tmp/docker-ce.repo
+    yum-config-manager --add-repo /tmp/docker-ce.repo
     provisio install rpm-key docker-ce https://download.docker.com/linux/centos/gpg
     provisio install yum docker-ce
-    sudo systemctl enable docker
-    sudo systemctl start docker
+    systemctl enable docker
+    systemctl start docker
 #end
 
 #task install_docker_compose once
     provisio install yum curl
     provisio download https://github.com/docker/compose/releases/download/1.19.0-rc1/docker-compose-`uname -s`-`uname -m`
-    sudo mv /tmp/docker-compose-`uname -s`-`uname -m` /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
+    mv /tmp/docker-compose-`uname -s`-`uname -m` /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
 #end
 
 #task pull_docker_images once
@@ -79,8 +79,8 @@
 
 #task install_tile_systemd_service once
     pushd "$CODE_REPO_PATH"
-        sudo cp service/tile-server.service /etc/systemd/system/tile-server.service
-        sudo chmod 664 /etc/systemd/system/tile-server.service
+        cp service/tile-server.service /etc/systemd/system/tile-server.service
+        chmod 664 /etc/systemd/system/tile-server.service
     popd
     # Get systemd to reload the latest configurations
     systemctl daemon-reload
