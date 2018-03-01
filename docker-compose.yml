@@ -24,6 +24,12 @@ services:
 networks:
   osm_network:
     name: osm_server_network
+    driver: bridge
+    ipam:
+      config:
+      -
+        # Make sure this network doesn't clash with other typical networks
+        subnet: 172.30.0.0/16
 
 volumes:
   osm_postgres_database:
